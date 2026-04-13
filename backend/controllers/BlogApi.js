@@ -1,18 +1,18 @@
 import slugify from "slugify"
-import Blog from "../Model/BlogSchema.js"
+import Blog from "../models/BlogModel.js"
 
 
-export const CreateBlog = async(req, res) => {
+export const CreateBlog = async (req, res) => {
     try {
-        const {title, slug, content, tags, category, status } = req.body
+        const { title, slug, content, tags, category, status } = req.body
         const author = req.user._id;
 
-        
-        
-        if(!title || !content || !category){
+
+
+        if (!title || !content || !category) {
             return res.status(400).json({
-                success:false,
-                message:"Please Provide All Required Fields"
+                success: false,
+                message: "Please Provide All Required Fields"
             })
         }
 
@@ -20,7 +20,7 @@ export const CreateBlog = async(req, res) => {
 
         const newBlog = await Blog.create({
             title,
-            slug:finalSlug,
+            slug: finalSlug,
             content,
             author,
             tags,
@@ -29,102 +29,102 @@ export const CreateBlog = async(req, res) => {
         })
 
         res.status(201).json({
-            success:true,
-            message:"Blog Created Successfully",
-            data:newBlog
+            success: true,
+            message: "Blog Created Successfully",
+            data: newBlog
         })
     } catch (error) {
         if (error.code === 11000) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "Title or Slug already exists" 
+            return res.status(400).json({
+                success: false,
+                message: "Title or Slug already exists"
             });
         }
         res.status(500).json({
-            success:false,
-            message:"Failed To Create Blog",
-            error:error.message
+            success: false,
+            message: "Failed To Create Blog",
+            error: error.message
         })
     }
 }
 
-export const getAllBlog = async(req, res) => {
+export const getAllBlog = async (req, res) => {
     try {
         const allBlog = await Blog.find().populate("author", "userName profileImage");
 
-    if(allBlog.length === 0) { 
-        return res.status(404).json({
-        success: false,
-        message: "No Blogs Found"
-        });
-    }
+        if (allBlog.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No Blogs Found"
+            });
+        }
 
         res.status(200).json({
-            success:true,
-            count:allBlog.length,
-            data:allBlog
+            success: true,
+            count: allBlog.length,
+            data: allBlog
         })
     } catch (error) {
         res.status(500).json({
-            success:false,
-            message:"Failed To Fetch The Blog",
-            error:error.message
+            success: false,
+            message: "Failed To Fetch The Blog",
+            error: error.message
         })
     }
 }
 
-export const blogByID = async(req, res) => {
+export const blogByID = async (req, res) => {
     try {
-        const single = req.params.id
-        const singleBlog = await Blog.findById(single);
+        const single = req.params.id;
+        const singleBlog = await Blog.findById(single).populate("author", "userName profileImage");
 
         if(!singleBlog){
             return res.status(404).json({
                 success:false,
                 message:"Blog Not Found"
-            })
+            });
         }
 
         res.status(200).json({
-            success:true,
-            data:singleBlog
+            success: true,
+            data: singleBlog
         })
     } catch (error) {
         res.status(500).json({
-            success:false,
-            message:"Error To Fetch the Blog",
-            error:error.message
+            success: false,
+            message: "Error To Fetch the Blog",
+            error: error.message
         })
     }
 }
 
-export const blogUpdate = async(req, res) => {
+export const blogUpdate = async (req, res) => {
     try {
         const singleid = req.params.id
         const blogUpdated = await Blog.findByIdAndUpdate(
             singleid,
             req.body,
-            {new:true}
+            { new: true }
         )
 
-        if(!blogUpdated){
+        if (!blogUpdated) {
             return res.status(404).json({
-                success:false,
-                message:"Blog Not Found"
+                success: false,
+                message: "Blog Not Found"
             })
         }
 
         res.status(200).json({
-            success:true,
-            message:"Blog Updated Successfully",
-            data:blogUpdated
+            success: true,
+            message: "Blog Updated Successfully",
+            data: blogUpdated
         })
 
     } catch (error) {
         res.status(500).json({
-            success:false,
-            message:"Failed To Update The Blog",
-            error:error.message
+            success: false,
+            message: "Failed To Update The Blog",
+            error: error.message
         })
     }
 }

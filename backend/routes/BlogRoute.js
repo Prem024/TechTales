@@ -1,5 +1,5 @@
 import express from "express";
-import { blogByID, blogDelete, blogUpdate, CreateBlog, getAllBlog } from "../controller/BlogApi.js";
+import { blogByID, blogDelete, blogUpdate, CreateBlog, getAllBlog } from "../controllers/BlogApi.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 const blogRouter = express.Router();
