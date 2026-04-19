@@ -5,7 +5,7 @@ import cors from "cors";
 // Load environment variables
 dotenv.config();
 
-import Dbcon from "./config/db.js";
+import Dbcon from "./config/Db.js";
 import userRouter from "./routes/UserRoute.js";
 import blogRouter from "./routes/BlogRoute.js";
 import commentRouter from "./routes/CommentRoute.js";
