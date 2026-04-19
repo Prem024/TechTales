@@ -2,7 +2,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 
 const API = axios.create({
-  baseURL: 'http://localhost:6002/api',
+  baseURL: `${import.meta.env.VITE_API_BASE_URL}/api`,
 });
 
 // Request Interceptor: Attach token if it exists

@@ -16,7 +16,12 @@ const app = express();
 Dbcon();
 
 // Middleware
-app.use(cors());
+// Update this section in your server.js
+app.use(cors({
+    origin: "https://tech-tales-five.vercel.app", 
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+}));
 app.use(express.json());
 
 // Routes
