@@ -6,6 +6,7 @@ import Spinner from '../components/Spinner';
 import API from '../services/api';
 import toast from 'react-hot-toast';
 import { Trash2, User } from 'lucide-react';
+import ReactMarkdown from "react-markdown";
 
 const BlogDetails = () => {
   const { id } = useParams();
@@ -111,8 +112,11 @@ const BlogDetails = () => {
             <span>{new Date(currentBlog.createdAt).toLocaleDateString()}</span>
           </div>
 
-          <div className="prose prose-lg prose-indigo max-w-none text-gray-700 whitespace-pre-wrap">
+          {/* <div className="prose prose-lg prose-indigo max-w-none text-gray-700 whitespace-pre-wrap">
             {currentBlog.content}
+          </div> */}
+          <div className="prose prose-lg prose-indigo max-w-none">
+            <ReactMarkdown>{currentBlog.content}</ReactMarkdown>
           </div>
         </div>
       </article>
