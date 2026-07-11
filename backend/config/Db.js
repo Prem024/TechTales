@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import Blog from "../models/BlogModel.js";
+import User from "../models/UserModel.js";
+import bcrypt from "bcryptjs";
 
 const Dbcon = async () => {
     try {
@@ -17,6 +19,44 @@ const Dbcon = async () => {
             }
         } catch (migErr) {
             console.error("Failed to run blog visibility migration:", migErr.message);
+        }
+
+        // Ensure admin user exists with the configured admin password
+        try {
+            const adminEmail = "admin@techtales.com";
+            let admin = await User.findOne({ email: adminEmail });
+            
+            const salt = await bcrypt.genSalt(10);
+            const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
+            const hashedPassword = await bcrypt.hash(adminPassword, salt);
+            
+            if (admin) {
+                let changed = false;
+                if (admin.role !== "admin") {
+                    admin.role = "admin";
+                    changed = true;
+                    console.log(`Promoted existing user ${adminEmail} to admin role.`);
+                }
+                // Reset password if RESET_ADMIN environment variable is set to true
+                if (process.env.RESET_ADMIN === "true") {
+                    admin.password = hashedPassword;
+                    changed = true;
+                    console.log("Admin password reset via RESET_ADMIN env variable.");
+                }
+                if (changed) {
+                    await admin.save();
+                }
+            } else {
+                await User.create({
+                    userName: "admin",
+                    email: adminEmail,
+                    password: hashedPassword,
+                    role: "admin"
+                });
+                console.log("Default admin user created successfully on database connection.");
+            }
+        } catch (adminErr) {
+            console.error("Failed to seed admin user on startup:", adminErr.message);
         }
 
     } catch (error) {
