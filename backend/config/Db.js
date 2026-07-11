@@ -37,11 +37,12 @@ const Dbcon = async () => {
                     changed = true;
                     console.log(`Promoted existing user ${adminEmail} to admin role.`);
                 }
-                // Reset password if RESET_ADMIN environment variable is set to true
-                if (process.env.RESET_ADMIN === "true") {
+                // Automatically update password in the database if it doesn't match the configured adminPassword
+                const isMatch = await bcrypt.compare(adminPassword, admin.password);
+                if (!isMatch) {
                     admin.password = hashedPassword;
                     changed = true;
-                    console.log("Admin password reset via RESET_ADMIN env variable.");
+                    console.log("Admin password updated to match configured adminPassword.");
                 }
                 if (changed) {
                     await admin.save();
