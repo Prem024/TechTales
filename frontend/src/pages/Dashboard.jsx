@@ -3,8 +3,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { fetchBlogs, deleteBlog } from '../redux/slices/blogSlice';
 import Spinner from '../components/Spinner';
+import { getImageUrl } from '../utils/imageHelper';
 import { Edit, Trash2, PlusCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+
+const stripHtml = (html) => {
+  if (!html) return '';
+  let cleanText = html.replace(/<[^>]*>/g, ' ');
+  cleanText = cleanText.replace(/&nbsp;/g, ' ');
+  return cleanText.replace(/\s+/g, ' ').trim();
+};
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -36,18 +44,49 @@ const Dashboard = () => {
 
   return (
     <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 capitalize">{user?.userName}&apos;s Dashboard</h1>
-          <p className="mt-1 text-sm text-gray-500">Manage your blog posts securely</p>
+      {/* Profile Overview Banner */}
+      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 mb-8 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
+          <img
+            src={getImageUrl(user?.profileImage)}
+            alt={user?.userName}
+            className="w-20 h-20 rounded-full object-cover border border-indigo-100 bg-gray-50 shadow-sm"
+            onError={(e) => {
+              e.target.src = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+            }}
+          />
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 capitalize flex items-center justify-center md:justify-start gap-2">
+              {user?.userName}
+              <span className="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold">
+                {user?.role || 'user'}
+              </span>
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">{user?.email}</p>
+          </div>
         </div>
-        <Link
-          to="/create"
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Create New Post
-        </Link>
+        <div className="flex flex-wrap gap-3">
+          <Link
+            to="/profile/edit"
+            className="inline-flex items-center px-5 py-2 border border-gray-300 text-sm font-semibold rounded-full shadow-sm text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+          >
+            Edit Profile
+          </Link>
+          <Link
+            to="/create"
+            className="inline-flex items-center px-6 py-2 border border-transparent text-sm font-semibold rounded-full shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 transition-colors"
+          >
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Create Post
+          </Link>
+        </div>
+      </div>
+
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h2 className="text-xl font-bold text-gray-900">Your Stories</h2>
+          <p className="text-xs text-gray-500 mt-0.5">Manage and edit your posts</p>
+        </div>
       </div>
 
       {error ? (
@@ -58,21 +97,35 @@ const Dashboard = () => {
             {userBlogs.map((blog) => (
               <li key={blog._id} className="p-4 sm:p-6 hover:bg-gray-50 transition-colors">
                 <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0 pr-4">
-                    <Link to={`/blog/${blog._id}`} className="block focus:outline-none">
-                      <h3 className="text-lg font-medium text-indigo-600 truncate">{blog.title}</h3>
-                      <p className="mt-1 text-sm text-gray-500 line-clamp-2">
-                        {blog.content}
-                      </p>
-                    </Link>
-                    <div className="mt-2 flex items-center text-sm text-gray-500 space-x-4">
-                      <span className="font-medium text-gray-700">By {user?.userName}</span>
-                      <span>•</span>
-                      <span>Category: {blog.category}</span>
-                      <span>•</span>
-                      <span>
-                        Created: {new Date(blog.createdAt).toLocaleDateString()}
-                      </span>
+                  <div className="flex flex-1 min-w-0 items-start pr-4 space-x-4">
+                    {(blog.featuredImage || blog.image) && (
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden border border-gray-100">
+                        <img
+                          src={getImageUrl(blog.featuredImage || blog.image)}
+                          alt={blog.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+                    <div className="flex-grow min-w-0">
+                      <Link to={`/blog/${blog._id}`} className="block focus:outline-none">
+                        <h3 className="text-lg font-semibold text-indigo-600 hover:text-indigo-800 truncate">{blog.title}</h3>
+                        <p className="mt-1 text-sm text-gray-500 line-clamp-2">
+                          {stripHtml(blog.content)}
+                        </p>
+                      </Link>
+                      <div className="mt-2 flex flex-wrap items-center text-xs text-gray-500 gap-x-3 gap-y-1">
+                        <span className="font-medium text-gray-700 capitalize">By {user?.userName}</span>
+                        <span>•</span>
+                        <span>Category: {blog.category}</span>
+                        <span>•</span>
+                        <span>
+                          Created: {new Date(blog.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center justify-end space-x-2">

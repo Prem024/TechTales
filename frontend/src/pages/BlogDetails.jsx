@@ -5,8 +5,9 @@ import { fetchBlogById, clearCurrentBlog } from '../redux/slices/blogSlice';
 import Spinner from '../components/Spinner';
 import API from '../services/api';
 import toast from 'react-hot-toast';
-import { Trash2, User } from 'lucide-react';
-import ReactMarkdown from "react-markdown";
+import { Trash2 } from 'lucide-react';
+import { getImageUrl } from '../utils/imageHelper';
+import 'react-quill-new/dist/quill.snow.css';
 
 const BlogDetails = () => {
   const { id } = useParams();
@@ -86,12 +87,15 @@ const BlogDetails = () => {
   return (
     <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <article className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-12">
-        {currentBlog.image && (
+        {(currentBlog.featuredImage || currentBlog.image) && (
           <div className="aspect-[21/9] bg-gray-100 relative">
             <img
-              src={currentBlog.image}
+              src={getImageUrl(currentBlog.featuredImage || currentBlog.image)}
               alt={currentBlog.title}
               className="w-full h-full object-cover"
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
             />
           </div>
         )}
@@ -104,20 +108,35 @@ const BlogDetails = () => {
           </h1>
           
           <div className="flex items-center text-sm text-gray-500 mb-10 pb-8 border-b border-gray-100">
-            <span className="flex items-center bg-gray-50 px-3 py-1 rounded-full">
-              <User className="w-4 h-4 mr-2" />
-              {currentBlog.author?.userName || 'Unknown Author'}
+            <span className="flex items-center bg-gray-50 pl-1.5 pr-4 py-1.5 rounded-full space-x-2 border border-gray-100">
+              <img
+                src={getImageUrl(currentBlog.author?.profileImage)}
+                alt={currentBlog.author?.userName || 'Author'}
+                className="w-6 h-6 rounded-full object-cover border border-gray-200 bg-gray-50"
+                onError={(e) => {
+                  e.target.src = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+                }}
+              />
+              <span className="capitalize font-medium text-gray-800">
+                {currentBlog.author?.userName || 'Unknown Author'}
+              </span>
             </span>
             <span className="mx-4">•</span>
-            <span>{new Date(currentBlog.createdAt).toLocaleDateString()}</span>
+            <span>
+              {new Date(currentBlog.createdAt).toLocaleDateString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric'
+              })}
+            </span>
           </div>
 
-          {/* <div className="prose prose-lg prose-indigo max-w-none text-gray-700 whitespace-pre-wrap">
-            {currentBlog.content}
-          </div> */}
-          <div className="prose prose-lg prose-indigo max-w-none">
-            <ReactMarkdown>{currentBlog.content}</ReactMarkdown>
-          </div>
+          <div 
+            className="prose prose-lg prose-indigo max-w-none text-gray-700 break-words whitespace-normal"
+            dangerouslySetInnerHTML={{ 
+              __html: currentBlog.content ? currentBlog.content.replace(/&nbsp;/g, ' ') : '' 
+            }}
+          />
         </div>
       </article>
 

@@ -111,3 +111,132 @@ export const getUserProfile = async(req, res) => {
         })
     }
 }
+
+export const updateProfile = async(req, res) => {
+    try {
+        const {userName, password} = req.body
+        console.log("Req.body>>>",req.body)
+
+        const userid = req.params.id
+        console.log("Userid>>>",userid)
+
+        const user = await User.findById(userid);
+        console.log("User >>>",user)
+
+        if(!user){
+            return res.status(404).json({
+                success:false,
+                message:"User Not Found"
+            })
+        }
+
+        const data = {
+            userName
+        }
+
+        // Stores multiple images
+        if(req.files && req.files.length > 0){
+            data.profileImage = req.files.map(file => file.path)
+        }
+
+        if(password){
+            const hashedPassword = await bcrypt.hash(password, 10);
+            data.password = hashedPassword
+        }
+
+        const updateUser = await User.findByIdAndUpdate(
+            userid,
+            data,
+            {new:true}
+        )
+
+        return res.status(200).json({
+            success:true,
+            message:"Profile Updated Successfully",
+            data:updateUser
+        })
+    } catch (error) {
+        return res.status(500).json({
+            success:false,
+            message:"Failed To Update the User Profile",
+            error:error.message
+        })
+    }
+}
+
+export const getallProfile = async(req, res) => {
+    try {
+        console.log("All Prfoles Api")
+        
+        const profiles = await User.find().select("-password")
+        console.log("profiles ",profiles)
+
+        if(!profiles || profiles.length === 0){
+            return res.status(404).json({
+                success:false,
+                message:"No Profile Found"
+            })
+        }
+
+        return res.status(200).json({
+            success:true,
+            message:"User Fetched Successfully",
+            data:profiles
+        })
+        
+    } catch (error) {
+        return res.status(500).json({
+            success:false,
+            message:"Failed To Fetch The User Profile",
+            error:error.message
+        })
+    }
+}
+
+export const deleteUser = async(req, res) => {
+    try {
+        const userid = req.body;
+
+        if(!userid){
+            return res.status(404).json({
+                success:false,
+                message:"User Id Is Requires "
+            })
+        }
+
+        let idtoDelete = [];
+
+        if(Array.isArray(userid)){
+            idtoDelete = userid
+        }
+        else{
+            idtoDelete = [userid]
+        }
+
+        const result = await User.deleteMany({
+            _id: { $in: idtoDelete}
+        })
+
+        if(!result.deletedCount === 0){
+            return res.status(404).json({
+                success:false,
+                message:"No User Found To Delete "
+            })
+        }
+
+        return res.status(200).json({
+            success:true,
+            message:"User'S Deleted Successfullt",
+            data:result
+        })
+
+
+    } catch (error) {
+        console.log("Error From Catch Block")
+        return res.status(500).json({
+            success:false,
+            message:"Failed To Delete the User",
+            error:error.message
+        })
+    }
+}

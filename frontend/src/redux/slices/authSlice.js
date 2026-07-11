@@ -26,6 +26,18 @@ export const registerUser = createAsyncThunk('auth/register', async (userData, {
   }
 });
 
+export const updateUserProfile = createAsyncThunk('auth/updateProfile', async ({ id, formData }, { rejectWithValue }) => {
+  try {
+    const response = await API.put(`/user/profile/update/${id}`, formData);
+    if (response.data.success) {
+      localStorage.setItem('user', JSON.stringify(response.data.data));
+    }
+    return response.data;
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to update profile');
+  }
+});
+
 const initialState = {
   user: JSON.parse(localStorage.getItem('user')) || null,
   token: localStorage.getItem('token') || null,
@@ -86,6 +98,25 @@ const authSlice = createSlice({
       }
     })
     .addCase(registerUser.rejected, (state, action) => {
+      state.isLoading = false;
+      state.error = action.payload;
+    });
+
+    // Update Profile
+    builder.addCase(updateUserProfile.pending, (state) => {
+      state.isLoading = true;
+      state.error = null;
+    })
+    .addCase(updateUserProfile.fulfilled, (state, action) => {
+      state.isLoading = false;
+      if (action.payload.success) {
+        state.user = action.payload.data;
+        state.error = null;
+      } else {
+        state.error = action.payload.message || 'Profile update failed';
+      }
+    })
+    .addCase(updateUserProfile.rejected, (state, action) => {
       state.isLoading = false;
       state.error = action.payload;
     });

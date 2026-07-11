@@ -24,3 +24,35 @@ export const protect = async (req, res, next) => {
         return res.status(401).json({ success: false, message: "Not authorized, no token" });
     }
 };
+
+export const verifyRoles = (allowedRoles = []) => {
+    return (req, res, next) => {
+        console.log("req.user.roles", req.user);
+        console.log("role >>>", req.user?.role);
+        console.log("allowedRoles >>>", allowedRoles);
+        if (!req.user || !allowedRoles.includes(req.user.role)) {
+            return res.status(403).json({
+                success: false,
+                statuscode: 403,
+                message: "You Do Not Have Permission for these resources"
+            });
+        }
+        next();
+    }
+}
+
+export const optionalProtect = async (req, res, next) => {
+    let token;
+
+    if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
+        try {
+            token = req.headers.authorization.split(" ")[1];
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            req.user = await User.findById(decoded.id).select("-password");
+        } catch (error) {
+            // Silently swallow errors for optional auth
+            console.log("Optional auth token verification failed:", error.message);
+        }
+    }
+    next();
+};

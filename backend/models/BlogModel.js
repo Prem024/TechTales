@@ -35,6 +35,14 @@ const BlogSchema = new mongoose.Schema({
     views:{
         type:Number,
         default:0
+    },
+    featuredImage: {
+        type: String,
+        default: "uploads/placeholder.png"
+    },
+    is_visible: {
+        type: Boolean,
+        default: true
     }
 },{timestamps:true})
 
