@@ -1,5 +1,7 @@
 import slugify from "slugify"
 import Blog from "../models/BlogModel.js"
+import { checkContentForBlockedWords } from "../utils/wordFilter.js"
+import { extractUrls, checkUrlsWithSafeBrowsing } from "../utils/linkFilter.js"
 
 
 export const CreateBlog = async (req, res) => {
@@ -14,6 +16,33 @@ export const CreateBlog = async (req, res) => {
                 success: false,
                 message: "Please Provide All Required Fields"
             })
+        }
+
+        // Validate content, title, and tags for blocked words
+        const titleCheck = checkContentForBlockedWords(title);
+        const contentCheck = checkContentForBlockedWords(content);
+        
+        let tagsString = Array.isArray(tags) ? tags.join(" ") : (tags || "");
+        const tagsCheck = checkContentForBlockedWords(tagsString);
+
+        if (titleCheck.hasBlockedWords || contentCheck.hasBlockedWords || tagsCheck.hasBlockedWords) {
+            return res.status(400).json({
+                success: false,
+                message: "Your content contains inappropriate language. Please revise it before publishing."
+            });
+        }
+
+        // Validate links using Google Safe Browsing API
+        const allText = `${title} ${content} ${tagsString}`;
+        const foundUrls = extractUrls(allText);
+        if (foundUrls.length > 0) {
+            const linkCheck = await checkUrlsWithSafeBrowsing(foundUrls);
+            if (linkCheck.hasMaliciousLinks) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Inappropriate or malicious links are not allowed. Please revise them before publishing."
+                });
+            }
         }
 
         const finalSlug = req.body.slug || slugify(title, { lower: true, strict: true });
@@ -161,6 +190,41 @@ export const blogByID = async (req, res) => {
 export const blogUpdate = async (req, res) => {
     try {
         const singleid = req.params.id
+        
+        // Validate content, title, and tags if they are being updated
+        const titleCheck = req.body.title ? checkContentForBlockedWords(req.body.title) : { hasBlockedWords: false, foundWords: [] };
+        const contentCheck = req.body.content ? checkContentForBlockedWords(req.body.content) : { hasBlockedWords: false, foundWords: [] };
+        
+        let tagsString = "";
+        if (req.body.tags) {
+            tagsString = Array.isArray(req.body.tags) ? req.body.tags.join(" ") : req.body.tags;
+        }
+        const tagsCheck = tagsString ? checkContentForBlockedWords(tagsString) : { hasBlockedWords: false, foundWords: [] };
+
+        if (titleCheck.hasBlockedWords || contentCheck.hasBlockedWords || tagsCheck.hasBlockedWords) {
+            return res.status(400).json({
+                success: false,
+                message: "Your content contains inappropriate language. Please revise it before publishing."
+            });
+        }
+
+        // Validate links using Google Safe Browsing API
+        let allTextToScan = "";
+        if (req.body.title) allTextToScan += req.body.title + " ";
+        if (req.body.content) allTextToScan += req.body.content + " ";
+        if (tagsString) allTextToScan += tagsString + " ";
+
+        const foundUrls = extractUrls(allTextToScan);
+        if (foundUrls.length > 0) {
+            const linkCheck = await checkUrlsWithSafeBrowsing(foundUrls);
+            if (linkCheck.hasMaliciousLinks) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Inappropriate or malicious links are not allowed. Please revise them before publishing."
+                });
+            }
+        }
+
         const updateData = { ...req.body };
         if (req.file) {
             updateData.featuredImage = req.file.path;
