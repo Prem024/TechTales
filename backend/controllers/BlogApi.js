@@ -25,10 +25,29 @@ export const CreateBlog = async (req, res) => {
         let tagsString = Array.isArray(tags) ? tags.join(" ") : (tags || "");
         const tagsCheck = checkContentForBlockedWords(tagsString);
 
+        const allFoundWords = [
+            ...(titleCheck.foundWords || []),
+            ...(contentCheck.foundWords || []),
+            ...(tagsCheck.foundWords || [])
+        ];
+
+        console.log("--------------------------------------------------");
+        console.log("🔍 [CreateBlog] Inappropriate Content Inspection");
+        if (allFoundWords.length > 0) {
+            console.warn("❌ Inappropriate word(s) detected when creating blog:");
+            if (titleCheck.hasBlockedWords) console.warn("   - In Title:", titleCheck.foundWords);
+            if (contentCheck.hasBlockedWords) console.warn("   - In Content:", contentCheck.foundWords);
+            if (tagsCheck.hasBlockedWords) console.warn("   - In Tags:", tagsCheck.foundWords);
+        } else {
+            console.log("✅ No inappropriate content found. Proceeding with blog creation.");
+        }
+        console.log("--------------------------------------------------");
+
         if (titleCheck.hasBlockedWords || contentCheck.hasBlockedWords || tagsCheck.hasBlockedWords) {
             return res.status(400).json({
                 success: false,
-                message: "Your content contains inappropriate language. Please revise it before publishing."
+                message: "Your content contains inappropriate language. Please revise it before publishing.",
+                inappropriateWords: [...new Set(allFoundWords)]
             });
         }
 
@@ -201,10 +220,29 @@ export const blogUpdate = async (req, res) => {
         }
         const tagsCheck = tagsString ? checkContentForBlockedWords(tagsString) : { hasBlockedWords: false, foundWords: [] };
 
+        const allFoundWords = [
+            ...(titleCheck.foundWords || []),
+            ...(contentCheck.foundWords || []),
+            ...(tagsCheck.foundWords || [])
+        ];
+
+        console.log("--------------------------------------------------");
+        console.log("🔍 [blogUpdate] Inappropriate Content Inspection");
+        if (allFoundWords.length > 0) {
+            console.warn("❌ Inappropriate word(s) detected when updating blog:");
+            if (titleCheck.hasBlockedWords) console.warn("   - In Title:", titleCheck.foundWords);
+            if (contentCheck.hasBlockedWords) console.warn("   - In Content:", contentCheck.foundWords);
+            if (tagsCheck.hasBlockedWords) console.warn("   - In Tags:", tagsCheck.foundWords);
+        } else {
+            console.log("✅ No inappropriate content found. Proceeding with blog update.");
+        }
+        console.log("--------------------------------------------------");
+
         if (titleCheck.hasBlockedWords || contentCheck.hasBlockedWords || tagsCheck.hasBlockedWords) {
             return res.status(400).json({
                 success: false,
-                message: "Your content contains inappropriate language. Please revise it before publishing."
+                message: "Your content contains inappropriate language. Please revise it before publishing.",
+                inappropriateWords: [...new Set(allFoundWords)]
             });
         }
 

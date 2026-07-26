@@ -23,18 +23,28 @@ export const fetchBlogById = createAsyncThunk('blog/fetchBlogById', async (id, {
 export const createBlog = createAsyncThunk('blog/createBlog', async (blogData, { rejectWithValue }) => {
   try {
     const response = await API.post('/blog/create', blogData);
+    console.log("✅ [createBlog] Success:", response.data);
     return response.data;
   } catch (error) {
-    return rejectWithValue(error.response?.data?.message || 'Failed to create blog');
+    const errData = error.response?.data;
+    if (errData?.inappropriateWords?.length) {
+      console.warn("⚠️ [createBlog] Inappropriate words detected by backend:", errData.inappropriateWords);
+    }
+    return rejectWithValue(errData?.message || 'Failed to create blog');
   }
 });
 
 export const updateBlog = createAsyncThunk('blog/updateBlog', async ({ id, blogData }, { rejectWithValue }) => {
   try {
     const response = await API.put(`/blog/update/${id}`, blogData);
+    console.log("✅ [updateBlog] Success:", response.data);
     return response.data;
   } catch (error) {
-    return rejectWithValue(error.response?.data?.message || 'Failed to update blog');
+    const errData = error.response?.data;
+    if (errData?.inappropriateWords?.length) {
+      console.warn("⚠️ [updateBlog] Inappropriate words detected by backend:", errData.inappropriateWords);
+    }
+    return rejectWithValue(errData?.message || 'Failed to update blog');
   }
 });
 
