@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { loginUser, clearError } from '../redux/slices/authSlice';
+import SEOHead from '../components/SEOHead';
 import toast from 'react-hot-toast';
 
 const Login = () => {
@@ -44,6 +45,11 @@ const Login = () => {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <SEOHead
+        title="Sign In"
+        description="Sign in to your TechTales account to create and manage your tech blog posts."
+        noIndex={true}
+      />
       <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
         <div>
           <h2 className="mt-2 text-center text-3xl font-extrabold text-gray-900">

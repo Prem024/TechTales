@@ -1,6 +1,7 @@
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { getImageUrl } from '../utils/imageHelper';
+import SEOHead from '../components/SEOHead';
 import { User, Mail, Shield, Edit3 } from 'lucide-react';
 
 const Profile = () => {
@@ -10,6 +11,12 @@ const Profile = () => {
 
   return (
     <div className="max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+      <SEOHead
+        title="Profile"
+        description="View and manage your TechTales profile."
+        noIndex={true}
+      />
+
       <div className="bg-white shadow-xl rounded-3xl overflow-hidden border border-gray-100">
         {/* Banner Decoration */}
         <div className="h-32 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>

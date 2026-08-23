@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import API from '../services/api';
 import { getImageUrl } from '../utils/imageHelper';
+import SEOHead from '../components/SEOHead';
 import { Search, Trash2, Edit, Eye, EyeOff, ChevronLeft, ChevronRight, Filter, AlertTriangle, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -158,6 +159,12 @@ const AdminBlogs = () => {
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto py-6">
+      <SEOHead
+        title="Admin"
+        description="TechTales admin panel — manage all blog posts."
+        noIndex={true}
+      />
+
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>

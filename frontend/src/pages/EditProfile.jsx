@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { updateUserProfile, clearError } from '../redux/slices/authSlice';
 import { getImageUrl } from '../utils/imageHelper';
+import SEOHead from '../components/SEOHead';
 import { Camera, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -92,6 +93,12 @@ const EditProfile = () => {
 
   return (
     <div className="max-w-xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <SEOHead
+        title="Edit Profile"
+        description="Edit your TechTales profile settings."
+        noIndex={true}
+      />
+
       {/* Back Button */}
       <button
         onClick={() => navigate('/profile')}

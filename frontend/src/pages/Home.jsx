@@ -1,8 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchBlogs } from '../redux/slices/blogSlice';
 import BlogCard from '../components/BlogCard';
 import Spinner from '../components/Spinner';
+import SEOHead from '../components/SEOHead';
+import { SEO_CONFIG } from '../utils/seoConstants';
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -11,6 +13,20 @@ const Home = () => {
   useEffect(() => {
     dispatch(fetchBlogs());
   }, [dispatch]);
+
+  // JSON-LD structured data for the WebSite
+  const jsonLd = useMemo(() => ({
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: SEO_CONFIG.siteName,
+    url: SEO_CONFIG.siteUrl,
+    description: SEO_CONFIG.defaultDescription,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: `${SEO_CONFIG.siteUrl}/?q={search_term_string}`,
+      'query-input': 'required name=search_term_string',
+    },
+  }), []);
 
   if (isLoading) return <Spinner />;
 
@@ -25,6 +41,15 @@ const Home = () => {
 
   return (
     <div className="space-y-12">
+      <SEOHead
+        title="Discover Tech Stories, Tutorials & Insights"
+        description="Explore the latest tech articles, programming tutorials, and developer insights on TechTales. Join our community of writers and readers."
+        keywords="tech blog, technology articles, programming tutorials, web development, software engineering, coding tips, developer community, TechTales"
+        canonicalUrl={`${SEO_CONFIG.siteUrl}/`}
+        ogType="website"
+        jsonLd={jsonLd}
+      />
+
       {/* Hero Section */}
       <section className="text-center py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-3xl mb-12">
         <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-4">
@@ -55,3 +80,4 @@ const Home = () => {
 };
 
 export default Home;
+

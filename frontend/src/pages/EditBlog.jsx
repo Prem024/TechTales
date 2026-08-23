@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { fetchBlogById, updateBlog, clearCurrentBlog } from '../redux/slices/blogSlice';
 import { getImageUrl } from '../utils/imageHelper';
+import SEOHead from '../components/SEOHead';
 import API from '../services/api';
 import Spinner from '../components/Spinner';
 import toast from 'react-hot-toast';
@@ -167,6 +168,12 @@ const EditBlog = () => {
 
   return (
     <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <SEOHead
+        title="Edit Post"
+        description="Edit your blog post on TechTales."
+        noIndex={true}
+      />
+
       <div className="md:flex md:items-center md:justify-between mb-8">
         <div className="flex-1 min-w-0">
           <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">

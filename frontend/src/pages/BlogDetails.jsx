@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, Link } from 'react-router-dom';
 import { fetchBlogById, clearCurrentBlog } from '../redux/slices/blogSlice';
 import Spinner from '../components/Spinner';
+import SEOHead from '../components/SEOHead';
+import { SEO_CONFIG, createMetaDescription } from '../utils/seoConstants';
 import API from '../services/api';
 import toast from 'react-hot-toast';
 import { Trash2 } from 'lucide-react';
@@ -84,8 +86,87 @@ const BlogDetails = () => {
 
   if (!currentBlog) return null;
 
+  // Build dynamic SEO data from the current blog
+  const blogDescription = createMetaDescription(currentBlog.content);
+  const blogImageUrl = getImageUrl(currentBlog.featuredImage || currentBlog.image);
+  const blogUrl = `${SEO_CONFIG.siteUrl}/blog/${currentBlog._id}`;
+  const blogKeywords = [
+    currentBlog.category,
+    ...(currentBlog.tags || []),
+    'tech blog',
+    'TechTales',
+  ].filter(Boolean).join(', ');
+
+  // JSON-LD Article structured data
+  const articleJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Article',
+        headline: currentBlog.title,
+        description: blogDescription,
+        image: blogImageUrl,
+        url: blogUrl,
+        datePublished: currentBlog.createdAt,
+        dateModified: currentBlog.updatedAt || currentBlog.createdAt,
+        author: {
+          '@type': 'Person',
+          name: currentBlog.author?.userName || 'Unknown Author',
+        },
+        publisher: {
+          '@type': 'Organization',
+          name: SEO_CONFIG.siteName,
+          logo: {
+            '@type': 'ImageObject',
+            url: SEO_CONFIG.defaultOgImage,
+          },
+        },
+        mainEntityOfPage: {
+          '@type': 'WebPage',
+          '@id': blogUrl,
+        },
+        articleSection: currentBlog.category,
+        keywords: blogKeywords,
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: SEO_CONFIG.siteUrl,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: currentBlog.title,
+            item: blogUrl,
+          },
+        ],
+      },
+    ],
+  };
+
   return (
     <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <SEOHead
+        title={currentBlog.title}
+        description={blogDescription}
+        keywords={blogKeywords}
+        canonicalUrl={blogUrl}
+        ogImage={blogImageUrl}
+        ogType="article"
+        article={{
+          publishedTime: currentBlog.createdAt,
+          modifiedTime: currentBlog.updatedAt || currentBlog.createdAt,
+          author: currentBlog.author?.userName || 'Unknown Author',
+          section: currentBlog.category,
+          tags: currentBlog.tags || [],
+        }}
+        jsonLd={articleJsonLd}
+      />
+
       <article className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-12">
         {(currentBlog.featuredImage || currentBlog.image) && (
           <div className="aspect-[21/9] bg-gray-100 relative">

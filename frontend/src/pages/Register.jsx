@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { registerUser, clearError } from '../redux/slices/authSlice';
+import SEOHead from '../components/SEOHead';
 import toast from 'react-hot-toast';
 
 const Register = () => {
@@ -48,6 +49,11 @@ const Register = () => {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <SEOHead
+        title="Create Account"
+        description="Create a TechTales account to start writing and sharing your tech stories with the community."
+        noIndex={true}
+      />
       <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
         <div>
           <h2 className="mt-2 text-center text-3xl font-extrabold text-gray-900">

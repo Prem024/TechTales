@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { fetchBlogs, deleteBlog } from '../redux/slices/blogSlice';
 import Spinner from '../components/Spinner';
+import SEOHead from '../components/SEOHead';
 import { getImageUrl } from '../utils/imageHelper';
 import { Edit, Trash2, PlusCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -44,6 +45,12 @@ const Dashboard = () => {
 
   return (
     <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <SEOHead
+        title="Dashboard"
+        description="Manage your TechTales blog posts, create new content, and edit your profile."
+        noIndex={true}
+      />
+
       {/* Profile Overview Banner */}
       <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 mb-8 flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex flex-col md:flex-row items-center gap-4 text-center md:text-left">

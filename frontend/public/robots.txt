@@ -8,6 +8,10 @@ Disallow: /dashboard
 Disallow: /create
 Disallow: /edit/
 Disallow: /profile
+Disallow: /profile/edit
 Disallow: /admin/
+
+# Crawl politely
+Crawl-delay: 1
 
 Sitemap: https://tech-tales-five.vercel.app/sitemap.xml

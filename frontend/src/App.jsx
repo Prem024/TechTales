@@ -17,7 +17,9 @@ import AdminBlogs from './pages/AdminBlogs';
 function App() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 text-gray-900">
-      <Navbar />
+      <header>
+        <Navbar />
+      </header>
       <main className="flex-grow container mx-auto px-4 py-8">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -40,9 +42,20 @@ function App() {
           </Route>
         </Routes>
       </main>
+      <footer className="bg-white border-t border-gray-200 py-8 mt-auto">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-sm text-gray-500">
+            © {new Date().getFullYear()} TechTales. All rights reserved.
+          </p>
+          <p className="text-xs text-gray-400 mt-2">
+            A community-driven platform for tech stories, tutorials, and insights.
+          </p>
+        </div>
+      </footer>
       <Toaster position="bottom-right" reverseOrder={false} />
     </div>
   );
 }
 
 export default App;
+

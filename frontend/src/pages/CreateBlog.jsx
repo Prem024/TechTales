@@ -2,6 +2,7 @@ import { useState, useRef, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { createBlog } from '../redux/slices/blogSlice';
+import SEOHead from '../components/SEOHead';
 import API from '../services/api';
 import toast from 'react-hot-toast';
 import ReactQuill from 'react-quill-new';
@@ -150,6 +151,11 @@ const CreateBlog = () => {
       </div>
 
       <div className="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-100 p-6 sm:p-8">
+        <SEOHead
+          title="Create Post"
+          description="Create a new blog post on TechTales."
+          noIndex={true}
+        />
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700">
