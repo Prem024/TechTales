@@ -1,0 +1,13 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+Allow: /blog/
+
+# Protected / Authenticated Routes
+Disallow: /dashboard
+Disallow: /create
+Disallow: /edit/
+Disallow: /profile
+Disallow: /admin/
+
+Sitemap: https://tech-tales-five.vercel.app/sitemap.xml
